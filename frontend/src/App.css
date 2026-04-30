@@ -1,0 +1,145 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f4f8;
+  color: #333;
+}
+
+/* SMVIT Header */
+.smvit-header {
+  background: white;
+  padding: 0.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid #16a34a;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.smvit-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.smvit-logo {
+  width: 60px;
+  height: 60px;
+  background: #1e3a5f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.7rem;
+  text-align: center;
+  border: 3px solid #16a34a;
+}
+
+.smvit-title { color: #dc2626; font-size: 1.1rem; font-weight: 700; }
+.smvit-subtitle { color: #555; font-size: 0.72rem; }
+
+.nav-links { display: flex; align-items: center; gap: 1.5rem; }
+.nav-links a {
+  color: #1e3a5f;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color: #16a34a; }
+.nav-links button {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #555;
+  font-size: 0.9rem;
+}
+.nav-links button:hover { background: #f0f4f8; }
+
+/* Background */
+.bg-wrapper {
+  min-height: calc(100vh - 80px);
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Sir_M._Visvesvaraya_Institute_of_Technology%2C_Bangalore.jpg/1280px-Sir_M._Visvesvaraya_Institute_of_Technology%2C_Bangalore.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  position: relative;
+}
+.bg-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.82);
+}
+.bg-content { position: relative; z-index: 1; padding: 2rem; max-width: 1100px; margin: 0 auto; }
+
+/* Cards */
+.card { background: white; border-radius: 10px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 1rem; }
+.stat-card { background: white; border-radius: 10px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.stat-card .stat-num { font-size: 2rem; font-weight: 700; color: #16a34a; margin: 0.3rem 0; }
+.stat-card .stat-num.blue { color: #2563eb; }
+.stat-card .stat-num.red { color: #dc2626; }
+.stat-card .stat-label { color: #555; font-weight: 500; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: #e0f2e9; }
+th { padding: 0.7rem 1rem; text-align: left; font-weight: 600; color: #1e3a5f; font-size: 0.9rem; }
+td { padding: 0.7rem 1rem; border-bottom: 1px solid #f0f4f8; font-size: 0.9rem; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8fff8; }
+
+/* Buttons */
+.btn { padding: 0.5rem 1.1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: opacity 0.2s; }
+.btn:hover { opacity: 0.85; }
+.btn-primary { background: #2563eb; color: white; }
+.btn-green { background: #16a34a; color: white; }
+.btn-red { background: #dc2626; color: white; }
+.btn-teal { background: #0d9488; color: white; }
+.btn-gray { background: #e5e7eb; color: #333; }
+.btn-outline { background: transparent; border: 1.5px solid #16a34a; color: #16a34a; }
+.btn-sm { padding: 0.3rem 0.7rem; font-size: 0.8rem; }
+
+/* Forms */
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-weight: 500; margin-bottom: 0.4rem; color: #444; }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 0.6rem 0.8rem;
+  border: 1.5px solid #d1d5db; border-radius: 8px;
+  font-size: 0.95rem; outline: none; transition: border 0.2s;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #16a34a; }
+
+/* Badges */
+.badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.badge-scheduled { background: #dbeafe; color: #1d4ed8; }
+.badge-completed { background: #dcfce7; color: #166534; }
+.badge-cancelled { background: #fee2e2; color: #991b1b; }
+.badge-pending { background: #fef9c3; color: #854d0e; }
+.badge-accepted { background: #dcfce7; color: #166534; }
+.badge-declined { background: #fee2e2; color: #991b1b; }
+.badge-hod { background: #ede9fe; color: #7c3aed; }
+.badge-staff { background: #e0f2fe; color: #0369a1; }
+.badge-principal { background: #fce7f3; color: #9d174d; }
+
+.error-msg { color: #dc2626; font-size: 0.85rem; margin-top: 0.3rem; }
+.success-msg { color: #16a34a; font-size: 0.85rem; margin-top: 0.3rem; }
+.loading { text-align: center; padding: 3rem; color: #6b7280; }
+
+.alert { padding: 0.8rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 500; }
+.alert-success { background: #dcfce7; color: #166534; }
+.alert-error { background: #fee2e2; color: #991b1b; }
+.alert-info { background: #dbeafe; color: #1d4ed8; }
+
+h1 { font-size: 1.8rem; margin-bottom: 1.2rem; }
+h2 { font-size: 1.2rem; margin-bottom: 0.8rem; }
+.page-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 1.5rem; }
+.text-green { color: #16a34a; }
+.text-blue { color: #2563eb; }
+.text-red { color: #dc2626; }
