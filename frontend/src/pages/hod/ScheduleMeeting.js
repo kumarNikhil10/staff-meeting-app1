@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createMeeting, getUsers } from '../../api';
-
+// Fix: Pointing to the correct CSS location in the staff folder
+import '../Dashboard.css';
 
 function HodSchedule({ user }) {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ function HodSchedule({ user }) {
     e.preventDefault(); 
     setError('');
     if (!form.title || !form.date || !form.time) return setError('Title, date and time are required');
+    
     setLoading(true);
     try {
       await createMeeting({ 
@@ -46,9 +48,10 @@ function HodSchedule({ user }) {
         time: form.time, 
         meetingLink: form.meetingLink, 
         venue: form.venue, 
-        attendees: form.selectedStaff 
+        // Fix: Mapping IDs to objects so the backend can save them properly
+        attendees: form.selectedStaff.map(id => ({ user: id, status: 'pending' })) 
       });
-      alert('Meeting scheduled!');
+      alert('✅ Meeting scheduled successfully!');
       navigate('/hod/dashboard');
     } catch (err) { 
       setError(err.response?.data?.message || 'Failed to schedule meeting'); 
@@ -59,25 +62,6 @@ function HodSchedule({ user }) {
 
   return (
     <div className="dashboard-outer-wrapper">
-      {/* Institutional Header with Emerald HOD Accent */}
-      <header className="inst-header">
-        <div className="inst-container">
-          <div className="inst-branding">
-            <h2 className="inst-short">SMVIT</h2>
-            <h1 className="inst-full">SIR M. VISVESVARAYA INSTITUTE OF TECHNOLOGY</h1>
-            <p className="inst-creds">Department of {user.department || 'Academics'}</p>
-          </div>
-          
-          <nav className="header-nav">
-            <div className="nav-links">
-              <Link to="/hod/dashboard" className="nav-item">Dashboard</Link>
-              <Link to="/hod/schedule" className="nav-item active">Schedule Meeting</Link>
-            </div>
-            <button className="logout-btn">Logout</button>
-          </nav>
-        </div>
-      </header>
-
       <main className="dashboard-content" style={{ maxWidth: '800px' }}>
         <div className="dashboard-intro-row">
           <div className="welcome-box">

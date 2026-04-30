@@ -8,11 +8,13 @@ router.get('/', protect, async (req, res) => {
   try {
     let meetings;
     if (req.user.role === 'principal') {
+      // Principal sees everything
       meetings = await Meeting.find()
         .populate('scheduledBy', 'name role department')
         .populate('attendees.user', 'name email role department')
         .sort({ date: -1 });
     } else {
+      // Others see meetings they created or are invited to
       meetings = await Meeting.find({
         $or: [
           { scheduledBy: req.user.id },
@@ -23,6 +25,20 @@ router.get('/', protect, async (req, res) => {
         .populate('attendees.user', 'name email role department')
         .sort({ date: -1 });
     }
+
+    // PRIVACY SHIELD: If requester is HOD or Principal, hide staff throughput (notes)
+    if (req.user.role === 'principal' || req.user.role === 'hod') {
+      const sanitizedMeetings = meetings.map(m => {
+        const meetingObj = m.toObject();
+        meetingObj.attendees = meetingObj.attendees.map(a => {
+          delete a.throughput; // Remove the private notes from the response
+          return a;
+        });
+        return meetingObj;
+      });
+      return res.json(sanitizedMeetings);
+    }
+
     res.json(meetings);
   } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
@@ -33,8 +49,19 @@ router.get('/:id', protect, async (req, res) => {
     const meeting = await Meeting.findById(req.params.id)
       .populate('scheduledBy', 'name role department')
       .populate('attendees.user', 'name email role department');
+    
     if (!meeting) return res.status(404).json({ message: 'Meeting not found' });
-    res.json(meeting);
+
+    // PRIVACY SHIELD: Hide throughput for non-staff
+    const meetingObj = meeting.toObject();
+    if (req.user.role !== 'staff') {
+      meetingObj.attendees = meetingObj.attendees.map(a => {
+        delete a.throughput;
+        return a;
+      });
+    }
+
+    res.json(meetingObj);
   } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -57,7 +84,8 @@ router.post('/', protect, async (req, res) => {
       venue,
       scheduledBy: req.user.id,
       scheduledByRole: req.user.role,
-      attendees: attendees ? attendees.map(id => ({ user: id })) : []
+      // Initializing attendees with 'pending' status
+      attendees: attendees ? attendees.map(id => ({ user: id, status: 'pending' })) : []
     });
 
     const populated = await Meeting.findById(meeting._id)
@@ -68,12 +96,17 @@ router.post('/', protect, async (req, res) => {
   } catch (err) { res.status(500).json({ message: 'Server error' }); }
 });
 
-// UPDATE STATUS (principal or hod who created it)
+// UPDATE STATUS (principal or organizer)
 router.put('/:id/status', protect, async (req, res) => {
   try {
     const { status } = req.body;
     const meeting = await Meeting.findById(req.params.id);
     if (!meeting) return res.status(404).json({ message: 'Meeting not found' });
+
+    // AUTHORIZATION: Only the creator OR the Principal can mark a meeting as completed
+    if (meeting.scheduledBy.toString() !== req.user.id && req.user.role !== 'principal') {
+      return res.status(403).json({ message: 'Unauthorized to change status' });
+    }
 
     meeting.status = status;
     await meeting.save();
@@ -107,7 +140,10 @@ router.put('/:id/throughput', protect, async (req, res) => {
     const attendee = meeting.attendees.find(a => a.user.toString() === req.user.id);
     if (!attendee) return res.status(400).json({ message: 'You are not part of this meeting' });
 
+    // Update throughput AND mark the individual's status as completed
     attendee.throughput = throughput;
+    attendee.status = 'completed'; // This allows the Staff Dashboard to move it to "Earlier Meetings"
+    
     await meeting.save();
     res.json({ message: 'Meeting notes submitted!' });
   } catch (err) { res.status(500).json({ message: 'Server error' }); }
@@ -116,6 +152,14 @@ router.put('/:id/throughput', protect, async (req, res) => {
 // DELETE MEETING
 router.delete('/:id', protect, async (req, res) => {
   try {
+    const meeting = await Meeting.findById(req.params.id);
+    if (!meeting) return res.status(404).json({ message: 'Meeting not found' });
+
+    // Only allow the organizer or Principal to delete
+    if (meeting.scheduledBy.toString() !== req.user.id && req.user.role !== 'principal') {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
     await Meeting.findByIdAndDelete(req.params.id);
     res.json({ message: 'Meeting deleted' });
   } catch (err) { res.status(500).json({ message: 'Server error' }); }

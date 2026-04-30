@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getMeetings, getUsers, getPendingHods, approveHod, rejectHod, blacklistUser } from '../../api';
+import { 
+  getMeetings, 
+  getUsers, 
+  getPendingHods, 
+  approveHod, 
+  rejectHod, 
+  blacklistUser,
+  updateMeetingStatus // Ensure this is imported
+} from '../../api';
 import '../Dashboard.css';
 
 function PrincipalDashboard({ user }) {
@@ -35,6 +43,17 @@ function PrincipalDashboard({ user }) {
     if (!window.confirm('Reject this HOD registration?')) return;
     try { await rejectHod(id); flash('HOD registration rejected.'); loadAll(); }
     catch (err) { flash('❌ Failed'); }
+  };
+
+  // New function to handle status updates
+  const handleUpdateStatus = async (id, newStatus) => {
+    try {
+      await updateMeetingStatus(id, newStatus);
+      flash(`✅ Meeting marked as ${newStatus}!`);
+      loadAll();
+    } catch (err) {
+      flash('❌ Failed to update status');
+    }
   };
 
   const handleBlacklist = async () => {
@@ -154,6 +173,7 @@ function PrincipalDashboard({ user }) {
                     <th>Organizer</th>
                     <th>Date & Time</th>
                     <th>Status</th>
+                    <th className="text-right">Actions</th> {/* Added Header */}
                   </tr>
                 </thead>
                 <tbody>
@@ -172,6 +192,18 @@ function PrincipalDashboard({ user }) {
                         </div>
                       </td>
                       <td><span className={`status-pill pill-${m.status}`}>{m.status}</span></td>
+                      <td className="text-right">
+                        {/* Only show the button if the meeting is scheduled by the Principal and is currently "scheduled" */}
+                        {m.status === 'scheduled' && (m.scheduledBy?._id === user.id || m.scheduledBy === user.id) && (
+                          <button 
+                            className="btn-done" 
+                            onClick={() => handleUpdateStatus(m._id, 'completed')}
+                            style={{ padding: '6px 12px', fontSize: '0.75rem' }}
+                          >
+                            Mark Complete
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
