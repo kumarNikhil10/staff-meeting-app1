@@ -1,7 +1,7 @@
 # 🏫 College Staff Meeting Management System
 ---
 
-## 📁 FOLDER STRUCTURE
+#📁 FOLDER STRUCTURE
 
 ```
 staff-meeting-app/
