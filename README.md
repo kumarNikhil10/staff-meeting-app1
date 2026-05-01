@@ -1,6 +1,4 @@
 # 🏫 College Staff Meeting Management System
-### MERN Stack Project — Complete Setup Guide for Beginners
-
 ---
 
 ## 📁 FOLDER STRUCTURE
